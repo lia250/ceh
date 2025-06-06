@@ -11,6 +11,19 @@ INSTALLED_APPS = [
 ]
 ```
 
+urls.py
+
+create vuln_app/urls.py
+```
+from django.urls import path
+from vuln_app.views import login
+
+urlpatterns = [
+    path('login/', login, name='login'),
+]
+```
+
+
 models.py
 ```python
 from django.db import models
