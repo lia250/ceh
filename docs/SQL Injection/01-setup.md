@@ -35,6 +35,14 @@ TEMPLATES = [
 ]
 ```
 
+```
+STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / "static",] # development
+
+MEDIA_ROOT = '/media/'
+MEDIA_URL = '/media/'
+```
+
 
 config/urls.py
 ```python
