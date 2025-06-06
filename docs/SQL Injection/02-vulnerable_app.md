@@ -14,7 +14,7 @@ INSTALLED_APPS = [
 urls.py
 
 create vuln_app/urls.py
-```
+```python
 from django.urls import path
 from vuln_app.views import login
 
