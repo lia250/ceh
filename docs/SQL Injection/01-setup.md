@@ -22,6 +22,20 @@ git commit -m "initial commit" # Setting up project structure
 pyton manage.py runserver
 ```
 
+config/settings.py
+```
+TEMPLATES = [
+    {
+        ...
+
+        'DIRS': [BASE_DIR / 'templates'],
+
+        ...
+
+]
+```
+
+
 config/urls.py
 ```python
 from django.urls import path, include
