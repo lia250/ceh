@@ -249,4 +249,10 @@ templates/home.html
 {% endblock %}
 ```
 
-
+git 
+```
+git status
+git add .
+git status
+git commit -m "vuln_app"
+```
