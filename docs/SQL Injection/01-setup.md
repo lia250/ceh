@@ -23,7 +23,7 @@ pyton manage.py runserver
 ```
 
 config/settings.py
-```
+```python
 TEMPLATES = [
     {
         ...
