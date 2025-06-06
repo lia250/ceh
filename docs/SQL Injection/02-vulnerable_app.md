@@ -90,15 +90,15 @@ def login(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        # کوئری SQL آسیب‌پذیر (بدون استفاده از ORM یا پارامترهای امن)!
+       
         with connection.cursor() as cursor:
             cursor.execute(f"SELECT * FROM vuln_app_user WHERE username='{username}' AND password='{password}'")
             user = cursor.fetchone()
 
         if user:
-            return HttpResponse("ورود موفق! کاربر پیدا شد.")
+            return render(request, 'login_success.html')
         else:
-            return HttpResponse("ورود ناموفق! کاربر یافت نشد.")
+            return render(request, 'login_failed.html')
 
     return render(request, 'login.html')
 ```
