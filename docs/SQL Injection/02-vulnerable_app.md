@@ -79,7 +79,7 @@ output
 <QuerySet [<User: User object (1)>]>
 ```
 
-views.py/def login
+views.py/def login()
 
 ```python
 from django.http import HttpResponse
