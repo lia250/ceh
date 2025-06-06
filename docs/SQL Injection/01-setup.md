@@ -23,7 +23,7 @@ pyton manage.py runserver
 ```
 
 config/urls.py
-```
+```python
 from django.urls import path, include
 
 from django.conf import settings
