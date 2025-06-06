@@ -221,7 +221,7 @@ templates/login_failed.html
 ```
 
 views.py/def home():
-```
+```python
 def home(request):
     context = {
         'welcome_message': 'Home view',
@@ -231,7 +231,7 @@ def home(request):
 ```
 
 vuln_app/urls.py
-```
+```python
 from .views import home
 
 urlpatterns = [
@@ -241,7 +241,7 @@ urlpatterns = [
 ```
 
 templates/home.html
-```
+```html
 {% extends '_base.html' %}
 
 {% block content %}
