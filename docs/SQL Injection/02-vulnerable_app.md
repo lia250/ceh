@@ -220,31 +220,33 @@ templates/login_failed.html
 {% endblock %}
 ```
 
-
-models.py/class Product()
-```python
-class Product(models.Model):
-    name = models.CharField(max_length=200, verbose_name="نام محصول")
-    description = models.TextField(verbose_name="توضیحات")
-    price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="قیمت")
-    stock = models.PositiveIntegerField(verbose_name="موجودی")
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    is_active = models.BooleanField(default=True, verbose_name="فعال")
-    
-    class Meta:
-        verbose_name = "محصول"
-        verbose_name_plural = "محصولات"
-        ordering = ['-created_at']
-    
-    def __str__(self):
-        return self.name
-    
-    def get_absolute_url(self):
-        return reverse('product_detail', args=[str(self.id)])
+views.py/def home():
+```
+def home(request):
+    context = {
+        'welcome_message': 'Home view',
+        'user': request.user  
+    }
+    return render(request, 'home.html', context)
 ```
 
-views.py/class ProductListView()
-```python
-
+vuln_app/urls.py
 ```
+from .views import home
+
+urlpatterns = [
+    ...
+    path('', home, name='home'),
+]
+```
+
+templates/home.html
+```
+{% extends '_base.html' %}
+
+{% block content %}
+<h2 class="text-center">{{ welcome_message }}</h2>
+{% endblock %}
+```
+
+
