@@ -103,8 +103,8 @@ def login(request):
     return render(request, 'login.html')
 ```
 
-template/_base.html
-```
+templates/_base.html
+```html
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">  <!-- For Persian/Farsi language -->
 <head>
@@ -137,8 +137,8 @@ template/_base.html
 </html>
 ```
 
-template/login
-```
+templates/login
+```html
 {% extends '_base.html' %}
 
 {% block title %}ورود به سیستم{% endblock %}
@@ -170,8 +170,8 @@ template/login
 {% endblock %}
 ```
 
-template/login_success.html
-```
+templates/login_success.html
+```html
 {% extends '_base.html' %}
 
 {% block title %}ورود موفق{% endblock %}
@@ -195,8 +195,8 @@ template/login_success.html
 {% endblock %}
 ```
 
-template/login_failed.html
-```
+templates/login_failed.html
+```html
 {% extends '_base.html' %}
 
 {% block title %}ورود ناموفق{% endblock %}
