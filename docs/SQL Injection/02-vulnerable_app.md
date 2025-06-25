@@ -48,37 +48,6 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = ('username',)
 ```
 
-views.py
-```python
-from vuln_app.models import User
-
-def create_test_user():
-    User.objects.create(username="admin", password="secret123")
-```
-
-shell
-```
-python manage.py shell
-```
-
-```python
-from vuln_app.views import create_test_user
-create_test_user()
-```
-
-or 
-
-```python
-from vuln_app.models import User
-User.objects.create(username="admin", password="secret123")
-print(User.objects.all())
-```
-
-output
-```
-<QuerySet [<User: User object (1)>]>
-```
-
 views.py/def login()
 
 ```python
