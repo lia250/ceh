@@ -54,7 +54,7 @@ git commit -m "vuln_app"
 
 # 2. main templates
 
-templates/_base.html
+src/templates/_base.html
 ```html
 {% load static %}
 <!doctype html>
@@ -110,7 +110,7 @@ templates/_base.html
 </html>
 ```
 
-templates/_header.html
+src/templates/_header.html
 ```html
 {% load static %}
 <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm osahan-header py-0">
@@ -212,7 +212,7 @@ templates/_header.html
 </nav>
 ```
 
-templates/_footer.html
+src/templates/_footer.html
 ```html
 {% load static %}
 <footer class="bg-footer py-5 d-none d-md-block">
@@ -278,7 +278,7 @@ templates/_footer.html
 </footer>
 ```
 
-templates/_modals.html
+src/templates/_modals.html
 ```html
 {% load static %}
 <div class="modal fade" id="exampleModalToggle" aria-hidden="true" tabindex="-1">
@@ -518,6 +518,8 @@ urlpatterns = [
 
 src/vuln_app/views.py
 ```python
+from django.shortcuts import render
+
 def listview(request):
     context = {
          
@@ -766,31 +768,418 @@ urlpatterns = [
 ]
 ```
 
+src/vuln_app/views.py
+```python
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from vuln_app.models import User
+
+def _render_register_form(request, username='', email='', **kwargs):
+    context = {
+        'username': username,
+        'email': email,
+        **kwargs
+    }
+    return render(request, 'accounts/register.html', context)
+
+def register(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirmPassword')
+        terms_agreed = request.POST.get('termsCheck') == 'on'
+
+        storage = messages.get_messages(request)
+        storage.used = True
+
+
+        validation_passed = True
+        
+        if not terms_agreed:
+            messages.error(request, 'You must agree to the terms and conditions')
+            validation_passed = False
+
+        if not username or not email or not password:
+            messages.error(request, 'All fields are required')
+            validation_passed = False
+
+        if password != confirm_password:
+            messages.error(request, 'Passwords do not match')
+            validation_passed = False
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'Username already exists')
+            validation_passed = False
+
+        if User.objects.filter(email=email).exists():
+            messages.error(request, 'Email already registered')
+            validation_passed = False
+
+        if not validation_passed:
+            return _render_register_form(request, username, email)
+
+        try:
+            user = User.objects.create(
+                username=username,
+                email=email,
+                password=password
+            )
+            messages.success(request, 'Registration successful! Please login.')
+            return redirect('login')
+            
+        except Exception as e:
+            messages.error(request, f'Error during registration: {str(e)}')
+            return _render_register_form(request, username, email)
+
+    return _render_register_form(request)
+```
+
+src/config/settings.py
+```python
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+```
+
+src/vuln_app/templates/accounts/register.html
+```html
+{% extends '_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0 rounded">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <h4 class="fw-bold">Create your account</h4>
+                        <p class="text-muted">Join Bodegaa to get started</p>
+                    </div>
+
+                    <form method="POST" action="{% url 'register' %}">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="bi bi-person"></i></span>
+                                <input type="text" class="form-control" id="username" name="username"
+                                    placeholder="Enter your username">
+                            </div>
+                            {% if messages %}
+                            {% for message in messages %}
+                            {% if 'Username already exists' in message.message %}
+                            <div class="text-danger small mt-2">{{ message }}</div>
+                            {% endif %}
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="bi bi-envelope"></i></span>
+                                <input type="email" class="form-control" id="email" name="email"
+                                    placeholder="Enter your email">
+                            </div>
+                            {% if messages %}
+                            {% for message in messages %}
+                            {% if 'Email already registered' in message.message %}
+                            <div class="text-danger small mt-2">{{ message }}</div>
+                            {% endif %}
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="bi bi-lock"></i></span>
+                                <input type="password" class="form-control" id="password" name="password"
+                                    placeholder="Create password">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <div class="password-strength mt-2">
+                                <div class="progress" style="height: 5px;">
+                                    <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <small class="text-muted">Minimum 8 characters with at least one number</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="confirmPassword" class="form-label">Confirm Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="bi bi-lock"></i></span>
+                                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
+                                    placeholder="Confirm password">
+                                <button class="btn btn-outline-secondary" type="button" id="toggleConfirmPassword">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+
+                            {% if messages %}
+                            {% for message in messages %}
+                            {% if 'Passwords do not match' in message.message %}
+                            <div class="text-danger small mt-2">{{ message }}</div>
+                            {% endif %}
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="termsCheck" name="termsCheck">
+                            <label class="form-check-label small text-muted" for="termsCheck">
+                                I agree to Bodegaa's <a href="#" class="text-decoration-none text-success">Terms of
+                                    Service</a> and <a href="#" class="text-decoration-none text-success">Privacy
+                                    Policy</a>
+                            </label>
+                            {% if messages %}
+                            {% for message in messages %}
+                            {% if 'terms and conditions' in message.message %}
+                            <div class="text-danger small mt-1">{{ message }}</div>
+                            {% endif %}
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-lg py-3 px-4 text-uppercase w-100">Create
+                            Account</button>
+
+                        <div class="text-center mt-4">
+                            <p class="text-muted">Already have an account? <a href="login.html"
+                                    class="text-decoration-none text-success fw-bold">Sign in</a></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle password visibility
+    document.getElementById('togglePassword').addEventListener('click', function () {
+        const password = document.getElementById('password');
+        const icon = this.querySelector('i');
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        icon.classList.toggle('bi-eye');
+        icon.classList.toggle('bi-eye-slash');
+    });
+
+    // Toggle confirm password visibility
+    document.getElementById('toggleConfirmPassword').addEventListener('click', function () {
+        const confirmPassword = document.getElementById('confirmPassword');
+        const icon = this.querySelector('i');
+        const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+        confirmPassword.setAttribute('type', type);
+        icon.classList.toggle('bi-eye');
+        icon.classList.toggle('bi-eye-slash');
+    });
+
+    // Password strength indicator
+    document.getElementById('password').addEventListener('input', function () {
+        const strengthBar = document.querySelector('.progress-bar');
+        const strength = calculatePasswordStrength(this.value);
+        strengthBar.style.width = strength + '%';
+
+        // Update color based on strength
+        strengthBar.className = 'progress-bar'; // Reset classes
+        if (strength < 30) {
+            strengthBar.classList.add('bg-danger');
+        } else if (strength < 70) {
+            strengthBar.classList.add('bg-warning');
+        } else {
+            strengthBar.classList.add('bg-success');
+        }
+    });
+
+    function calculatePasswordStrength(password) {
+        let strength = 0;
+
+        // Length check
+        if (password.length > 0) strength += 10;
+        if (password.length >= 8) strength += 30;
+
+        // Complexity checks
+        if (/[A-Z]/.test(password)) strength += 20;
+        if (/[0-9]/.test(password)) strength += 20;
+        if (/[^A-Za-z0-9]/.test(password)) strength += 20;
+
+        return Math.min(strength, 100); // Cap at 100%
+    }
+</script>
+{% endblock %}
+```
+
 # 5. login view
 
-views.py/def login()
-
+src/vuln_app/urls.py
 ```python
+from django.urls import path
+from .views import listview, register, login
 
+urlpatterns = [
+    path('login/', login, name='login'),
+    path('register/', register, name='register'),
+    path('', listview, name='home'),
+]
 ```
 
-
-
-templates/login
-```html
-
-```
-
-
-views.py/def listview():
+src/vuln_app/views.py
 ```python
+from django.db import connection
 
+def login(request):
+    error = None  
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        with connection.cursor() as cursor:
+            cursor.execute(f"SELECT * FROM vuln_app_user WHERE username='{username}' AND password='{password}'")
+            user = cursor.fetchone()
+
+            if user:
+        
+                request.session['user_id'] = user[0]
+                request.session['username'] = user[3]
+                return redirect('home')
+            else:
+                error = "Invalid username or password"
+
+    return render(request, 'accounts/login.html', {'error': error})
 ```
 
 
-vuln_app/templates/listview.html
+
+src/vuln_app/templates/accounts/login.html
 ```html
+{% extends '_base.html' %}
+{% load static %}
 
+{% block title %}Login - Bodegaa{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0 rounded">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <h4 class="fw-bold">Welcome back</h4>
+                        <p class="text-muted">Sign in to your Bodegaa account</p>
+                    </div>
+
+                    <form method="POST" action="{% url 'login' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="loginEmail" class="form-label">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="bi bi-person"></i></span>
+                                <input type="text" class="form-control" id="loginEmail" name="username" placeholder="Enter username">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="loginPassword" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white"><i class="bi bi-lock"></i></span>
+                                <input type="password" class="form-control" id="loginPassword" name="password"
+                                    placeholder="Enter password">
+                                <button class="btn btn-outline-secondary" type="button" id="toggleLoginPassword">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        {% if error %}
+                        <div class="alert alert-danger mb-3">{{ error }}</div>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="rememberMe">
+                                <label class="form-check-label small text-muted" for="rememberMe">
+                                    Remember me
+                                </label>
+                            </div>
+                            <a href="forgot-password.html" class="small text-decoration-none text-success">Forgot
+                                password?</a>
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-lg py-3 px-4 text-uppercase w-100">Sign
+                            In</button>
+
+                        <div class="text-center mt-4">
+                            <p class="text-muted">Don't have an account? <a href="register.html"
+                                    class="text-decoration-none text-success fw-bold">Sign up</a></p>
+                        </div>
+
+                        <div class="d-flex align-items-center my-4">
+                            <hr class="flex-grow-1">
+                            <span class="mx-3 text-muted small">OR</span>
+                            <hr class="flex-grow-1">
+                        </div>
+
+                        <div class="d-grid gap-3">
+                            <button type="button" class="btn btn-outline-secondary py-2 text-uppercase">
+                                <i class="bi bi-google me-2"></i> Continue with Google
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary py-2 text-uppercase">
+                                <i class="bi bi-facebook me-2"></i> Continue with Facebook
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle login password visibility
+    document.getElementById('toggleLoginPassword').addEventListener('click', function () {
+        const password = document.getElementById('loginPassword');
+        const icon = this.querySelector('i');
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        icon.classList.toggle('bi-eye');
+        icon.classList.toggle('bi-eye-slash');
+    });
+</script>
+{% endblock %}
 ```
+
+# 5. logout view
+
+src/vuln_app/urls.py
+```python
+from django.urls import path
+from .views import listview, register, login, logout
+
+urlpatterns = [
+    path('login/', login, name='login'),
+    path('register/', register, name='register'),
+    path('logout/', logout, name='logout'),
+    path('', listview, name='home'),
+]
+```
+
+src/vuln_app/views.py
+```python
+def logout(request):
+    request.session.flush()  
+    return redirect('home') 
+```
+
+
 
 
