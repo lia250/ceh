@@ -1,7 +1,8 @@
 
+# 1. vuln_app
 
 ```
-python manage.py startapp vuln_app
+python manage.py startapp 
 ```
 
 ```python
@@ -11,26 +12,18 @@ INSTALLED_APPS = [
 ]
 ```
 
-urls.py
-
-create vuln_app/urls.py
-```python
-from django.urls import path
-from vuln_app.views import login
-
-urlpatterns = [
-    path('login/', login, name='login'),
-]
-```
-
-
 models.py
 ```python
 from django.db import models
 
 class User(models.Model):
-    username = models.CharField(max_length=100)
+    username = models.CharField(max_length=100, unique=True)
+    email = models.EmailField(unique=True, null=True, blank=True)
     password = models.CharField(max_length=100)
+
+
+    def __str__(self):
+        return self.username
 ```
 
 ```bash
@@ -40,6 +33,7 @@ python manage.py migrate
 
 admin.py
 ```python
+from django.contrib import admin
 from .models import User
 
 @admin.register(User)
@@ -48,29 +42,17 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = ('username',)
 ```
 
-views.py/def login()
 
-```python
-from django.http import HttpResponse
-from django.db import connection
-
-def login(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-
-       
-        with connection.cursor() as cursor:
-            cursor.execute(f"SELECT * FROM vuln_app_user WHERE username='{username}' AND password='{password}'")
-            user = cursor.fetchone()
-
-        if user:
-            return render(request, 'login_success.html')
-        else:
-            return render(request, 'login_failed.html')
-
-    return render(request, 'login.html')
+git 
 ```
+git status
+git add .
+git status
+git commit -m "vuln_app"
+```
+
+
+# 2. main templates
 
 templates/_base.html
 ```html
@@ -210,8 +192,20 @@ templates/_header.html
                         <span class="visually-hidden">Cart</span>
                     </span>
                 </a>
+
+                {% if 'username' in request.session %}
+
+                <span class="text-dark text-decoration-none ">{{ request.session.username }}</span>
+                    
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success rounded-pill text-uppercase ms-2">Log out</button>
+                </form>
+
+                {% else %}
                 <a class="btn btn-success rounded-pill px-3 text-uppercase ms-2" data-bs-toggle="modal"
                     href="#exampleModalToggle" role="button">Sign in</a>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -510,13 +504,19 @@ templates/_modals.html
 </div>
 ```
 
-templates/login
-```html
+# 3. list view
 
+src/vuln_app/urls.py
+```python
+from django.urls import path
+from .views import listview
+
+urlpatterns = [
+    path('', listview, name='home'),
+]
 ```
 
-
-views.py/def listview():
+src/vuln_app/views.py
 ```python
 def listview(request):
     context = {
@@ -525,18 +525,8 @@ def listview(request):
     return render(request, 'listview.html', context)
 ```
 
-vuln_app/urls.py
+src/vuln_app/templates/listview.html
 ```python
-from .views import listview
-
-urlpatterns = [
-    path('login/', login, name='login'),
-    path('', listview, name='home'),
-]
-```
-
-vuln_app/templates/listview.html
-```html
 {% extends '_base.html' %}
 {% load static %}
 
@@ -763,10 +753,44 @@ vuln_app/templates/listview.html
 {% endblock %}
 ```
 
-git 
+# 4. register view
+
+src/vuln_app/urls.py
+```python
+from django.urls import path
+from .views import listview, register
+
+urlpatterns = [
+    path('register/', register, name='register'),
+    path('', listview, name='home'),
+]
 ```
-git status
-git add .
-git status
-git commit -m "vuln_app"
+
+# 5. login view
+
+views.py/def login()
+
+```python
+
 ```
+
+
+
+templates/login
+```html
+
+```
+
+
+views.py/def listview():
+```python
+
+```
+
+
+vuln_app/templates/listview.html
+```html
+
+```
+
+
