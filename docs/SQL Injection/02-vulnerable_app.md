@@ -772,7 +772,7 @@ src/vuln_app/views.py
 ```python
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from vuln_app.models import User
+from django.contrib.auth.models import User
 
 def _render_register_form(request, username='', email='', **kwargs):
     context = {
@@ -1042,13 +1042,12 @@ def login(request):
         password = request.POST.get('password')
 
         with connection.cursor() as cursor:
-            cursor.execute(f"SELECT * FROM vuln_app_user WHERE username='{username}' AND password='{password}'")
+            cursor.execute(f"SELECT * FROM auth_user  WHERE username='{username}' AND password='{password}'")
             user = cursor.fetchone()
 
             if user:
-        
                 request.session['user_id'] = user[0]
-                request.session['username'] = user[3]
+                request.session['username'] = user[4]
                 return redirect('home')
             else:
                 error = "Invalid username or password"
